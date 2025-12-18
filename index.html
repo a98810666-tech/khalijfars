@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<title>رستوران خلیج فارس</title>
+
+<style>
+body{
+    font-family: Tahoma;
+    direction: rtl;
+    margin:0;
+    padding:20px;
+    background: linear-gradient(135deg,#1e3c72,#2a5298);
+    color:white;
+}
+h1{
+    text-align:center;
+    margin-bottom:30px;
+}
+#menu{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:20px;
+}
+.card{
+    background:white;
+    color:#333;
+    border-radius:15px;
+    padding:15px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.3);
+    transition:transform .3s;
+}
+.card:hover{transform:translateY(-8px);}
+.card img{
+    width:100%;
+    height:160px;
+    object-fit:cover;
+    border-radius:10px;
+}
+.card h3{margin:10px 0 5px;}
+.price{
+    background:#ffefc4;
+    padding:6px 10px;
+    border-radius:10px;
+    font-weight:bold;
+    font-size:16px;
+    text-align:center;
+    margin-top:8px;
+}
+input{
+    width:100%;
+    margin-top:6px;
+}
+button{
+    position:fixed;
+    right:10px;
+    padding:6px 10px;
+    font-size:12px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    box-shadow:0 2px 6px rgba(0,0,0,.3);
+}
+#adminBtn{
+    top:10px;
+    background:#ffcc00;
+}
+#logoutBtn{
+    top:40px;
+    background:#ff6666;
+    display:none;
+}
+</style>
+</head>
+
+<body>
+
+<button id="adminBtn">ورود ادمین</button>
+<button id="logoutBtn">خروج ادمین</button>
+
+<h1>🍽️ منوی رستوران خلیج فارس</h1>
+<div id="menu"></div>
+
+<script>
+const ADMIN_PASSWORD="0923";
+let isAdmin=false;
+
+const menuItems=[
+ {name:"چلو کباب کوبیده",price:120000},
+ {name:"چلو کباب برگ",price:180000},
+ {name:"چلو جوجه کباب",price:130000},
+ {name:"چلو جوجه زعفرانی",price:150000},
+ {name:"چلو کباب سلطانی",price:200000},
+ {name:"چلو ماهی شیر",price:220000},
+ {name:"چلو میگو سوخاری",price:210000},
+ {name:"چلو قلیه ماهی",price:230000},
+ {name:"زرشک پلو با مرغ",price:110000},
+ {name:"باقالی پلو با ماهیچه",price:250000},
+ {name:"چلو خورشت قورمه سبزی",price:100000},
+ {name:"چلو خورشت قیمه",price:90000},
+ {name:"چلو خورشت بامیه",price:95000},
+ {name:"لوبیا پلو",price:85000},
+ {name:"عدس پلو",price:80000},
+ {name:"سبزی پلو با ماهی",price:120000},
+ {name:"سوپ دریایی",price:70000},
+ {name:"سوپ جو",price:65000},
+ {name:"سالاد شیرازی",price:40000},
+ {name:"سالاد فصل",price:45000},
+ {name:"ماست موسیر",price:30000},
+ {name:"نوشابه",price:15000},
+ {name:"دوغ محلی",price:20000},
+ {name:"چای",price:10000}
+];
+
+const menu=document.getElementById("menu");
+const adminBtn=document.getElementById("adminBtn");
+const logoutBtn=document.getElementById("logoutBtn");
+
+function renderMenu(){
+ menu.innerHTML="";
+ menuItems.forEach((item,i)=>{
+  const card=document.createElement("div");
+  card.className="card";
+
+  const img=document.createElement("img");
+  img.src=localStorage.getItem("img"+i) || "https://via.placeholder.com/300x160?text=Food";
+
+  const title=document.createElement("h3");
+  title.textContent=localStorage.getItem("name"+i) || item.name;
+
+  const price=document.createElement("div");
+  price.className="price";
+  const savedPrice=localStorage.getItem("price"+i) || item.price;
+  price.textContent=Number(savedPrice).toLocaleString()+" تومان";
+
+  card.append(img,title,price);
+
+  if(isAdmin){
+    const nameInput=document.createElement("input");
+    nameInput.value=title.textContent;
+    nameInput.onchange=()=>{
+      title.textContent=nameInput.value;
+      localStorage.setItem("name"+i,nameInput.value);
+    };
+
+    const file=document.createElement("input");
+    file.type="file";
+    file.onchange=()=>{
+      const r=new FileReader();
+      r.onload=e=>{
+        img.src=e.target.result;
+        localStorage.setItem("img"+i,e.target.result);
+      };
+      r.readAsDataURL(file.files[0]);
+    };
+
+    const priceInput=document.createElement("input");
+    priceInput.type="number";
+    priceInput.value=savedPrice;
+    priceInput.onchange=()=>{
+      price.textContent=Number(priceInput.value).toLocaleString()+" تومان";
+      localStorage.setItem("price"+i,priceInput.value);
+    };
+
+    card.append(nameInput,file,priceInput);
+  }
+
+  menu.appendChild(card);
+ });
+}
+
+adminBtn.onclick=()=>{
+ const pass=prompt("رمز ادمین:");
+ if(pass===ADMIN_PASSWORD){
+  isAdmin=true;
+  logoutBtn.style.display="block";
+  renderMenu();
+  alert("حالت ادمین فعال شد");
+ }else alert("رمز اشتباه");
+};
+
+logoutBtn.onclick=()=>{
+ isAdmin=false;
+ logoutBtn.style.display="none";
+ renderMenu();
+ alert("خروج از حالت ادمین");
+};
+
+renderMenu();
+</script>
+
+</body>
+</html>
